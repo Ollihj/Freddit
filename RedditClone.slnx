@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RedditClone.Api/RedditClone.Api.csproj" />
+  <Project Path="RedditClone.Client/RedditClone.Client.csproj" />
+</Solution>
