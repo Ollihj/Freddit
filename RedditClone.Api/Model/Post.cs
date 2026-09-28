@@ -1,5 +1,4 @@
-﻿namespace Model
-{
+﻿
     public class Post
     {
         public int PostId { get; set; }
@@ -12,4 +11,3 @@
 
         public List<Comment> Comments { get; set; } = new List<Comment>();
     }
-}

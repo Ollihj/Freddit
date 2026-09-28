@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Model
-{
+
     public class Comment
     {
         public int CommentId { get; set; }
@@ -15,4 +14,3 @@ namespace Model
         [JsonIgnore]
         public Post? Post { get; set; }
     }
-}
