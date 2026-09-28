@@ -43,7 +43,7 @@ namespace RedditClone.Api.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Post", b =>
@@ -74,7 +74,7 @@ namespace RedditClone.Api.Migrations
 
                     b.HasKey("PostId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Comment", b =>
