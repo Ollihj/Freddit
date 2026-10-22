@@ -22,6 +22,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    // Opretter/opdaterer databasen ud fra migrations, hvis den ikke findes (fx på en ny computer)
+    scope.ServiceProvider.GetRequiredService<PostContext>().Database.Migrate();
+
     var dataService = scope.ServiceProvider.GetRequiredService<DataService>();
     dataService.SeedData(); // Fylder data på, hvis databasen er tom. Ellers ikke.
 }
