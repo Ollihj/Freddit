@@ -24,7 +24,7 @@ public class DataService
 
             Comment comment1 = new Comment("Du er gay", 0, 0, kristian);
 
-            post = new Post(oliver, "Southpark season 29", "Den nye sæson af Southpark er virkelig god");
+            post = new Post(oliver, "Southpark season 29", text: "Den nye sæson af Southpark er virkelig god");
             post.Comments.Add(comment1);
 
             db.Posts.Add(post);
@@ -62,21 +62,25 @@ public class DataService
         return post;
     }
 
-    public Post CreatePost(string title, string content, string sername)
+    public Post CreatePost(string title, string? text, string? url, string sername)
     {
         User newUser = new User(sername);
-        Post newPost = new Post(newUser, title, content);
+        Post newPost = new Post(newUser, title, text, url);
         db.Posts.Add(newPost);
         db.SaveChanges();
         return newPost;
     }
-    public Comment CreateComment(string content, string username,int id)
+    public Comment? CreateComment(string content, string username, int id)
     {
-        User newUser = new User(username);
-        Comment NewComment = new Comment(content, 0, 0, newUser);
         var post = db.Posts.FirstOrDefault(x => x.Id == id);
-        post.Comments.Add(NewComment);
+        if (post == null)
+        {
+            return null;
+        }
+        User newUser = new User(username);
+        Comment newComment = new Comment(content, 0, 0, newUser);
+        post.Comments.Add(newComment);
         db.SaveChanges();
-        return NewComment;
+        return newComment;
     }
 }

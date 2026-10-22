@@ -51,13 +51,14 @@ app.MapPut("/api/posts/{id}/downvote", (int id, DataService service) =>
 
 app.MapPost("/api/posts", (NewPostData data, DataService service) =>
 {
-    return service.CreatePost(data.Title, data.Content, data.Username);
+    return service.CreatePost(data.Title, data.Text, data.Url, data.Username);
 });
-app.MapPost("/api/comments", (NewCommentData data, DataService service) =>
+app.MapPost("/api/posts/{id}/comments", (int id, NewCommentData data, DataService service) =>
 {
-    return service.CreateComment(data.content, data.Username, data.id);
+    var comment = service.CreateComment(data.Content, data.Username, id);
+    return comment is null ? Results.NotFound() : Results.Ok(comment);
 });
 app.Run();
 
-record NewPostData(string Title, string Content, string Username);
-record NewCommentData(string content, string Username, int id);
+record NewPostData(string Title, string? Text, string? Url, string Username);
+record NewCommentData(string Content, string Username);
