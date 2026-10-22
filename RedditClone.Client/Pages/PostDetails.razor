@@ -1,0 +1,124 @@
+@page "/post/{Id:int}"
+@using shared.Model
+@using RedditClone.Client.Services
+@inject ApiService ApiService
+
+<PageTitle>@(post?.Title ?? "Tråd")</PageTitle>
+
+<p><a href="/">&larr; Tilbage til forsiden</a></p>
+
+@if (post == null)
+{
+    <p><em>Indlæser...</em></p>
+}
+else
+{
+    <h1>@post.Title</h1>
+    <p>Af @post.User.Username, @post.CreatedAt.ToString("dd-MM-yyyy HH:mm")</p>
+
+    @if (post.Url != null)
+    {
+        <p><a href="@post.Url" target="_blank">@post.Url</a></p>
+    }
+    else
+    {
+        <p>@post.Text</p>
+    }
+
+    <p>
+        Stemmer: @(post.Upvotes - post.Downvotes)
+        <button @onclick="UpvotePost">Upvote</button>
+        <button @onclick="DownvotePost">Downvote</button>
+    </p>
+
+    <h3>Kommentarer</h3>
+    @if (post.Comments.Count == 0)
+    {
+        <p>Ingen kommentarer endnu.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var comment in post.Comments)
+            {
+                <li>
+                    <strong>@comment.User.Username</strong> (@comment.CreatedAt.ToString("dd-MM-yyyy HH:mm")):
+                    @comment.Content
+                    — stemmer: @(comment.Upvotes - comment.Downvotes)
+                    <button @onclick="() => UpvoteComment(comment.Id)">Upvote</button>
+                    <button @onclick="() => DownvoteComment(comment.Id)">Downvote</button>
+                </li>
+            }
+        </ul>
+    }
+
+    <h3>Skriv en kommentar</h3>
+    <p>
+        <input placeholder="Dit navn" @bind="commentUsername" />
+    </p>
+    <p>
+        <textarea placeholder="Kommentar" @bind="commentContent"></textarea>
+    </p>
+    @if (commentError != null)
+    {
+        <p style="color:red">@commentError</p>
+    }
+    <button @onclick="SubmitComment">Send kommentar</button>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Post? post;
+    private string? commentUsername;
+    private string? commentContent;
+    private string? commentError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPost();
+    }
+
+    private async Task LoadPost()
+    {
+        post = await ApiService.GetPost(Id);
+    }
+
+    private async Task UpvotePost()
+    {
+        await ApiService.UpvotePost(Id);
+        await LoadPost();
+    }
+
+    private async Task DownvotePost()
+    {
+        await ApiService.DownvotePost(Id);
+        await LoadPost();
+    }
+
+    private async Task UpvoteComment(int commentId)
+    {
+        await ApiService.UpvoteComment(Id, commentId);
+        await LoadPost();
+    }
+
+    private async Task DownvoteComment(int commentId)
+    {
+        await ApiService.DownvoteComment(Id, commentId);
+        await LoadPost();
+    }
+
+    private async Task SubmitComment()
+    {
+        commentError = null;
+        if (string.IsNullOrWhiteSpace(commentUsername) || string.IsNullOrWhiteSpace(commentContent))
+        {
+            commentError = "Udfyld både navn og kommentar.";
+            return;
+        }
+        await ApiService.CreateComment(Id, commentContent, commentUsername);
+        commentContent = "";
+        await LoadPost();
+    }
+}

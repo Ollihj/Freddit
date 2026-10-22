@@ -36,7 +36,15 @@ public class DataService
         return db.Posts
             .Include(p => p.User)
             .Include(p => p.Comments).ThenInclude(c => c.User)
+            .OrderByDescending(p => p.CreatedAt)
             .ToList();
+    }
+    public Post? GetPost(int id)
+    {
+        return db.Posts
+            .Include(p => p.User)
+            .Include(p => p.Comments).ThenInclude(c => c.User)
+            .FirstOrDefault(x => x.Id == id);
     }
     public Post? UpvotePost(int id)
     {
@@ -82,5 +90,37 @@ public class DataService
         post.Comments.Add(newComment);
         db.SaveChanges();
         return newComment;
+    }
+
+    public Comment? UpvoteComment(int postId, int commentId)
+    {
+        var comment = FindComment(postId, commentId);
+        if (comment == null)
+        {
+            return null;
+        }
+        comment.Upvotes++;
+        db.SaveChanges();
+        return comment;
+    }
+
+    public Comment? DownvoteComment(int postId, int commentId)
+    {
+        var comment = FindComment(postId, commentId);
+        if (comment == null)
+        {
+            return null;
+        }
+        comment.Downvotes++;
+        db.SaveChanges();
+        return comment;
+    }
+
+    private Comment? FindComment(int postId, int commentId)
+    {
+        var post = db.Posts
+            .Include(p => p.Comments).ThenInclude(c => c.User)
+            .FirstOrDefault(p => p.Id == postId);
+        return post?.Comments.FirstOrDefault(c => c.Id == commentId);
     }
 }

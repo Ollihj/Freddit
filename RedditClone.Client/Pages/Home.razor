@@ -1,7 +1,41 @@
-﻿@page "/"
+@page "/"
+@using shared.Model
+@using RedditClone.Client.Services
+@inject ApiService ApiService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Freddit</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Freddit</h1>
 
-Welcome to your new app.
+<p><a href="/create">Opret ny tråd</a></p>
+
+@if (posts == null)
+{
+    <p><em>Indlæser...</em></p>
+}
+else if (posts.Count == 0)
+{
+    <p>Der er endnu ingen tråde.</p>
+}
+else
+{
+    <ul>
+        @foreach (var post in posts)
+        {
+            <li>
+                <a href="/post/@post.Id">@post.Title</a>
+                — af @post.User.Username, @post.CreatedAt.ToString("dd-MM-yyyy HH:mm")
+                (@(post.Upvotes - post.Downvotes) stemmer)
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Post>? posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        posts = await ApiService.GetPosts();
+    }
+}

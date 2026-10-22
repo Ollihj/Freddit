@@ -1,0 +1,67 @@
+@page "/create"
+@using RedditClone.Client.Services
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Ny tråd</PageTitle>
+
+<p><a href="/">&larr; Tilbage til forsiden</a></p>
+
+<h1>Opret ny tråd</h1>
+
+<p>
+    <input placeholder="Overskrift" @bind="title" />
+</p>
+<p>
+    <input placeholder="Dit navn" @bind="username" />
+</p>
+<p>
+    <textarea placeholder="Tekst (hvis det er en tekst-tråd)" @bind="text"></textarea>
+</p>
+<p>
+    <input placeholder="URL (hvis det er et link i stedet)" @bind="url" />
+</p>
+
+@if (error != null)
+{
+    <p style="color:red">@error</p>
+}
+
+<button @onclick="Submit">Opret tråd</button>
+
+@code {
+    private string? title;
+    private string? username;
+    private string? text;
+    private string? url;
+    private string? error;
+
+    private async Task Submit()
+    {
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(username))
+        {
+            error = "Udfyld både overskrift og navn.";
+            return;
+        }
+
+        var hasText = !string.IsNullOrWhiteSpace(text);
+        var hasUrl = !string.IsNullOrWhiteSpace(url);
+
+        if (hasText == hasUrl)
+        {
+            error = "Udfyld enten Tekst eller URL — ikke begge, og ikke ingen af dem.";
+            return;
+        }
+
+        var newPost = await ApiService.CreatePost(title, hasText ? text : null, hasUrl ? url : null, username);
+        if (newPost == null)
+        {
+            error = "Noget gik galt. Prøv igen.";
+            return;
+        }
+
+        NavigationManager.NavigateTo($"/post/{newPost.Id}");
+    }
+}

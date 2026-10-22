@@ -40,13 +40,30 @@ app.MapGet("/api/posts", (DataService service) =>
 {
     return service.GetPosts();
 });
+app.MapGet("/api/posts/{id}", (int id, DataService service) =>
+{
+    var post = service.GetPost(id);
+    return post is null ? Results.NotFound() : Results.Ok(post);
+});
 app.MapPut("/api/posts/{id}/upvote", (int id, DataService service) =>
 {
-    return service.UpvotePost(id);
+    var post = service.UpvotePost(id);
+    return post is null ? Results.NotFound() : Results.Ok(post);
 });
 app.MapPut("/api/posts/{id}/downvote", (int id, DataService service) =>
 {
-    return service.DownvotePost(id);
+    var post = service.DownvotePost(id);
+    return post is null ? Results.NotFound() : Results.Ok(post);
+});
+app.MapPut("/api/posts/{postId}/comments/{commentId}/upvote", (int postId, int commentId, DataService service) =>
+{
+    var comment = service.UpvoteComment(postId, commentId);
+    return comment is null ? Results.NotFound() : Results.Ok(comment);
+});
+app.MapPut("/api/posts/{postId}/comments/{commentId}/downvote", (int postId, int commentId, DataService service) =>
+{
+    var comment = service.DownvoteComment(postId, commentId);
+    return comment is null ? Results.NotFound() : Results.Ok(comment);
 });
 
 app.MapPost("/api/posts", (NewPostData data, DataService service) =>

@@ -7,6 +7,7 @@ public class Post {
     public string? Url { get; set; }    // ...eller Url
     public int Upvotes { get; set; }
     public int Downvotes { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public User User { get; set; }
     public List<Comment> Comments { get; set; } = new List<Comment>();
     public Post(User user, string title = "", string? text = null, string? url = null, int upvotes = 0, int downvotes = 0) {
